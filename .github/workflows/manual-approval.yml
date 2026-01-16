@@ -1,0 +1,38 @@
+name: Manual Approval Demo
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build step
+        run: echo "Build completed"
+
+  approval:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Manual approval required
+        uses: trstringer/manual-approval@v1
+        with:
+          secret: ${{ secrets.GITHUB_TOKEN }}
+          approvers: ashishkhopade-lgtm
+          minimum-approvals: 1
+          issue-title: "Approval required for deployment"
+          issue-body: "Please approve to continue deployment."
+
+  deploy:
+    needs: approval
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy step
+        run: echo "Deployment started"
